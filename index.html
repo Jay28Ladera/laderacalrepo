@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Number Systems Program</title>
+  <link rel="stylesheet" href="Style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>Number System Menu</h1>
+
+    <nav class="menu">
+      <button onclick="showPanel('p1')">1) Decimal → Bin/Oct/Hex</button>
+      <button onclick="showPanel('p2')">2) Bin/Oct/Hex → Decimal</button>
+      <button onclick="showPanel('p3')">3) Add Two Numbers (any base)</button>
+      <button onclick="showPanel('p4')">4) Secret Code (Encode)</button>
+      <button onclick="showPanel('p5')">5) Secret Code (Decode)</button>
+      <button onclick="exitProgram()">6) Exit</button>
+    </nav>
+
+    <!-- Option 1 -->
+    <section id="p1" class="panel">
+      <h2>Decimal → Bin/Oct/Hex</h2>
+      <input id="decInput" type="number" placeholder="Enter decimal number" />
+      <div class="actions"><button onclick="convertDecimal()">Convert</button></div>
+      <pre id="decOut" class="output"></pre>
+    </section>
+
+    <!-- Option 2 -->
+    <section id="p2" class="panel">
+      <h2>Bin/Oct/Hex → Decimal</h2>
+      <div class="grid">
+        <div><input id="convNum" type="text" placeholder="Enter number" /></div>
+        <div>
+          <select id="convBase">
+            <option value="2">Binary (2)</option>
+            <option value="8">Octal (8)</option>
+            <option value="16">Hex (16)</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions"><button onclick="toDecimal()">Convert</button></div>
+      <pre id="convOut" class="output"></pre>
+    </section>
+
+    <!-- Option 3 -->
+    <section id="p3" class="panel">
+      <h2>Add Two Numbers (any base)</h2>
+      <div class="grid">
+        <div><input id="n1" type="text" placeholder="First number" /></div>
+        <div><input id="b1" type="number" min="2" max="16" placeholder="Base (2/8/10/16)" /></div>
+        <div><input id="n2" type="text" placeholder="Second number" /></div>
+        <div><input id="b2" type="number" min="2" max="16" placeholder="Base (2/8/10/16)" /></div>
+      </div>
+      <div class="actions"><button onclick="addAnyBase()">Add</button></div>
+      <pre id="addOut" class="output"></pre>
+    </section>
+
+    <!-- Option 4 -->
+    <section id="p4" class="panel">
+      <h2>Secret Code Translator (Encode)</h2>
+      <textarea id="encMsg" rows="3" placeholder="Enter message"></textarea>
+      <input id="encKey" type="number" placeholder="Enter secret key (decimal)" />
+      <div class="actions"><button onclick="encodeMsg()">Encode</button></div>
+      <pre id="encOut" class="output"></pre>
+    </section>
+
+    <!-- Option 5 -->
+    <section id="p5" class="panel">
+      <h2>Secret Code Translator (Decode)</h2>
+      <textarea id="decMsg" rows="3" placeholder="Enter encoded message (comma-separated decimals)"></textarea>
+      <input id="decKey" type="number" placeholder="Enter secret key (decimal)" />
+      <div class="actions"><button onclick="decodeMsg()">Decode</button></div>
+      <pre id="decOut2" class="output"></pre>
+    </section>
+
+    <!-- Exit -->
+    <section id="exitPanel" class="panel">
+      <h2>Exiting program...</h2>
+      <p>Goodbye!</p>
+    </section>
+
+  </div>
+
+  <script>
+    // Panel handling
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+    showPanel('p1');
+
+    function exitProgram() {
+      showPanel('exitPanel');
+    }
+
+    // Valid digits
+    const validDigits = (s, base) => {
+      const re = {
+        2: /^[01]+$/i,
+        8: /^[0-7]+$/i,
+        10: /^[0-9]+$/i,
+        16: /^[0-9a-f]+$/i
+      }[base];
+      return re ? re.test(s) : false;
+    };
+
+    // Option 1: Decimal → Bin/Oct/Hex
+    function convertDecimal() {
+      const val = document.getElementById('decInput').value.trim();
+      const out = document.getElementById('decOut');
+      if (!val) return out.textContent = "Enter a decimal number.";
+      const n = Number(val);
+      if (!Number.isInteger(n) || n < 0) return out.textContent = "Enter a valid non-negative integer.";
+      out.textContent = `Decimal: ${n}
+Binary : ${n.toString(2)}
+Octal  : ${n.toString(8)}
+Hex    : ${n.toString(16).toUpperCase()}`;
+    }
+
+    // Option 2: Any base → Decimal
+    function toDecimal() {
+      const s = document.getElementById('convNum').value.trim();
+      const b = Number(document.getElementById('convBase').value);
+      const out = document.getElementById('convOut');
+      if (!s) return out.textContent = "Enter a number.";
+      if (!validDigits(s, b)) return out.textContent = `Invalid for base ${b}.`;
+      const dec = parseInt(s, b);
+      out.textContent = `Input: ${s} (base ${b})
+Decimal: ${dec}`;
+    }
+
+    // Option 3: Addition
+    function addAnyBase() {
+      const n1 = document.getElementById('n1').value.trim();
+      const b1 = Number(document.getElementById('b1').value);
+      const n2 = document.getElementById('n2').value.trim();
+      const b2 = Number(document.getElementById('b2').value);
+      const out = document.getElementById('addOut');
+      if (!validDigits(n1, b1)) return out.textContent = `First number invalid in base ${b1}`;
+      if (!validDigits(n2, b2)) return out.textContent = `Second number invalid in base ${b2}`;
+      const d1 = parseInt(n1, b1), d2 = parseInt(n2, b2), sum = d1+d2;
+      out.textContent = `Result of Addition:
+Decimal: ${sum}
+Binary : ${sum.toString(2)}
+Octal  : ${sum.toString(8)}
+Hex    : ${sum.toString(16).toUpperCase()}`;
+    }
+
+    // Option 4: Encode
+    function encodeMsg() {
+      const msg = document.getElementById('encMsg').value;
+      const key = Number(document.getElementById('encKey').value);
+      const out = document.getElementById('encOut');
+      if (!msg) return out.textContent = "Enter a message.";
+      if (isNaN(key)) return out.textContent = "Enter a valid decimal key.";
+      const encodedDec = [], encodedHex = [];
+      for (let ch of msg) {
+        const code = ch.charCodeAt(0) + key;
+        encodedDec.push(code);
+        encodedHex.push("0x" + code.toString(16).toUpperCase());
+      }
+      out.textContent = `Encoded (decimal values): [${encodedDec.join(", ")}]
+Encoded (hex values): [${encodedHex.join(", ")}]`;
+    }
+
+    // Option 5: Decode
+    function decodeMsg() {
+      const input = document.getElementById('decMsg').value.trim();
+      const key = Number(document.getElementById('decKey').value);
+      const out = document.getElementById('decOut2');
+      if (!input) return out.textContent = "Enter encoded decimal values (comma-separated).";
+      if (isNaN(key)) return out.textContent = "Enter a valid key.";
+      const parts = input.split(",").map(s => s.trim()).filter(Boolean);
+      let msg = "";
+      for (let p of parts) {
+        const val = Number(p);
+        if (isNaN(val)) return out.textContent = `Invalid number: ${p}`;
+        msg += String.fromCharCode(val - key);
+      }
+      out.textContent = `Decoded Message: ${msg}`;
+    }
+  </script>
+</body>
+</html>
